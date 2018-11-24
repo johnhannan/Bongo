@@ -15,6 +15,7 @@ class ViewController: UIViewController, UICollisionBehaviorDelegate {
     var dynamicAnimator : UIDynamicAnimator!
     var gravityBehavior : UIGravityBehavior!
     var collisionBehavior : UICollisionBehavior!
+    var dynamicItemBehavior : UIDynamicItemBehavior!
     
     let kBlockSize : CGFloat = 100
     let kBlockVariation : CGFloat = 75
@@ -44,6 +45,8 @@ class ViewController: UIViewController, UICollisionBehaviorDelegate {
     func addBehaviors() {
         dynamicAnimator = UIDynamicAnimator(referenceView: self.view)
         
+        dynamicItemBehavior = UIDynamicItemBehavior(items: [])
+        dynamicItemBehavior.allowsRotation = false
         gravityBehavior = UIGravityBehavior(items: [])
         gravityBehavior.gravityDirection = CGVector(dx: 0.0, dy: 0.1)
         gravityBehavior.action = {
@@ -60,6 +63,7 @@ class ViewController: UIViewController, UICollisionBehaviorDelegate {
         
         dynamicAnimator.addBehavior(gravityBehavior)
         dynamicAnimator.addBehavior(collisionBehavior)
+        dynamicAnimator.addBehavior(dynamicItemBehavior)
         
     }
     
@@ -87,8 +91,13 @@ class ViewController: UIViewController, UICollisionBehaviorDelegate {
         let point = recognizer.location(in: self.view)
         let block = createBlockAt(point: point, square: false)
         let attachment = UIAttachmentBehavior(item: block, attachedToAnchor: point)
-        attachment.damping = 0.05
-        attachment.frequency = 0.0
+        dynamicItemBehavior.addItem(block)
+        
+        attachment.damping = 0.5
+        attachment.frequency = 5.0
+        
+        
+        
         dynamicAnimator.addBehavior(attachment)
         
         let pan = UIPanGestureRecognizer(target: self, action: #selector(ViewController.dragBlock(recognizer:)))
@@ -130,7 +139,7 @@ class ViewController: UIViewController, UICollisionBehaviorDelegate {
 //            path.move(to: beginPoint)
 //            path.addLine(to: endPoint)
 
-            let boundaryID = "(\(String(describing: beginPoint)), \(endPoint))" as NSString
+            let boundaryID = "(\(String(describing: beginPoint))), \(endPoint))" as NSString
             collisionBehavior.addBoundary(withIdentifier: boundaryID, from: beginPoint, to: endPoint)
             
 //            let userInfo = ["BoundaryID":boundaryID]
