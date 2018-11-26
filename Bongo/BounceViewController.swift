@@ -30,6 +30,7 @@ class BounceViewController: UIViewController, UICollisionBehaviorDelegate {
         addBehaviors()
      
         addGestures()
+        addSnowflakes()
     }
     
 
@@ -39,13 +40,19 @@ class BounceViewController: UIViewController, UICollisionBehaviorDelegate {
         collisionBehavior.translatesReferenceBoundsIntoBoundary = true
         collisionBehavior.collisionDelegate = self
         
+        
+        gravityBehavior = UIGravityBehavior(items: [])
+        gravityBehavior.gravityDirection = CGVector(dx: 0.03, dy: 0.0)
+        
         itemBehaviors.resistance = 0.0
         itemBehaviors.elasticity = 0.9
         itemBehaviors.density = 0.0
         
+        
         dynamicAnimator.addBehavior(collisionBehavior)
         dynamicAnimator.addBehavior(itemBehaviors)
         dynamicAnimator.addBehavior(bumperBehaviors)
+        dynamicAnimator.addBehavior(gravityBehavior)
     }
     
     func addGestures() {
@@ -59,7 +66,19 @@ class BounceViewController: UIViewController, UICollisionBehaviorDelegate {
         bumperBehaviors.isAnchored = true
     }
     
+    func addSnowflakes() {
+        Timer.scheduledTimer(timeInterval: 0.75, target: self, selector: #selector(BounceViewController.generateSnowflake(timer:)), userInfo: nil, repeats: true)
+    }
  
+    @objc func generateSnowflake(timer:Timer) {
+        let snowflake = UIImageView(image: UIImage(named: "Snowflake"))
+        snowflake.center = CGPoint(x: -20.0, y: 40.0)
+        self.view.addSubview(snowflake)
+        itemBehaviors.addItem(snowflake)
+        let velocity = CGPoint(x: 20.0, y: 0.0)
+        itemBehaviors.addLinearVelocity(velocity, for: snowflake)
+        //gravityBehavior.addItem(snowflake)
+    }
 
     var fireball : UIView!
     @objc func throwFire(recognizer: UIPanGestureRecognizer) {
